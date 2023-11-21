@@ -2,12 +2,20 @@ from flask_restx import Resource, Namespace
 from .models import User
 from .extensions import db, api
 from flask_jwt_extended import create_access_token, get_jwt_identity, jwt_required 
-from .api_models import req_signup_model,update_profile_model
+from .api_models import req_signup_model,update_profile_model, profile_details_model
 
-sign_ns = Namespace("signin", description="handle search")
+sign_ns = Namespace("sign", description="handle search")
 
 @sign_ns.route('')
 class SignIn(Resource):
+    # @jwt_required()
+    # @sign_ns.marshal_with(profile_details_model)
+    # def get(self):
+    #     details = get_jwt_identity()
+    #     user = User.query.filter_by(id = details["id"]).first()
+
+    #     return user
+    
     @sign_ns.expect(req_signup_model)
     def post(self):
 
@@ -24,12 +32,16 @@ class SignIn(Resource):
             new_user = User(username=username, email=email, password_hash = password)
             db.session.add(new_user)
             db.session.commit()
-            return {"message": "New user added successfully ."}, 201
+
+            access_token = create_access_token(identity=new_user.id)
+            return {"message": "User registered successfully",
+                    'access_token': access_token 
+                }, 201
         else:
             return {'message': 'User already exists .'}, 422
          
     @jwt_required()
-    @sign_ns.expect(update_profile_model)
+    @sign_ns.expect()
     @sign_ns.marshal_with(update_profile_model)
     def put(self):
 
@@ -43,14 +55,18 @@ class SignIn(Resource):
     
     @jwt_required()
     def delete(self):
-
         user_details = get_jwt_identity()
-        user = User.query.filter_by(email = user_details['email']).first()
+        user_id = user_details.get('id')
+
+        user = User.query.filter_by(id = user_id).first()
 
         if not user:
             return {"message": "User not found"}, 404
         
-        db.session.delete(user=user)
+        db.session.delete(user)
         db.session.commit()
         return {}, 204
+ 
+
+
     

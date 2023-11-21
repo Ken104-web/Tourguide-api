@@ -6,6 +6,8 @@ def create_app():
 
     app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///app.db'
     app.config["JWT_SECRET_KEY"] = "secrer-key" 
+    app.config['JWT_TOKEN_LOCATION'] = ['headers', 'query_string']
+    # app.config['JWT_BLACKLIST_ENABLED'] = True
 
 
     api.init_app(app)

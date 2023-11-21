@@ -12,3 +12,8 @@ update_profile_model = api.model("User profile Updated", {
     "username": fields.String,
     "password":fields.String
 })
+profile_details_model = api.model("Profile Details", {
+    "username": fields.String,
+    "email": fields.String,
+    "password": fields.String
+})
