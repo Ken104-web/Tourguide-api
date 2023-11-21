@@ -8,13 +8,6 @@ sign_ns = Namespace("sign", description="handle search")
 
 @sign_ns.route('')
 class SignIn(Resource):
-    # @jwt_required()
-    # @sign_ns.marshal_with(profile_details_model)
-    # def get(self):
-    #     details = get_jwt_identity()
-    #     user = User.query.filter_by(id = details["id"]).first()
-
-    #     return user
     
     @sign_ns.expect(req_signup_model)
     def post(self):
