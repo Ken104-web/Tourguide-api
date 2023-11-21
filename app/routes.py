@@ -16,12 +16,12 @@ class SignIn(Resource):
         username = sign_data['username']
         email = sign_data['email']
         password = sign_data['password']
-        confirm_password = sign_data['confirm password']
+        # confirm_password = sign_data['confirm password']
 
         user = User.query.filter_by(email = sign_data['email']).first()
 
         if not user:
-            new_user = User(username=username, email=email, password_hash = password, confirm_password=confirm_password)
+            new_user = User(username=username, email=email, password_hash = password)
             db.session.add(new_user)
             db.session.commit()
             return {"message": "New user added successfully ."}, 201
