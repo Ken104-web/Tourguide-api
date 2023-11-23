@@ -63,7 +63,7 @@ class Search(Resource):
 
     @jwt_required(optional=True)
     @search_ns.expect(search_model)
-    def post(self):
+    def get(self):
         destination = get_destination(query)
 
         return destination, 200
