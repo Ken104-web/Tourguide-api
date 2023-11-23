@@ -2,13 +2,12 @@ from flask_restx import Resource, Namespace
 from .models import User
 from .extensions import db, api
 from flask_jwt_extended import create_access_token, get_jwt_identity, jwt_required 
-from .api_models import req_signup_model,update_profile_model, profile_details_model
+from .api_models import req_signup_model,update_profile_model, profile_details_model,search_model
 
 sign_ns = Namespace("sign", description="handle search")
-
+search_ns = Namespace('search', description="search for destinations")
 @sign_ns.route('')
 class SignIn(Resource):
-    
     @sign_ns.expect(req_signup_model)
     def post(self):
 
@@ -59,7 +58,21 @@ class SignIn(Resource):
         db.session.delete(user)
         db.session.commit()
         return {}, 204
- 
+search_ns.route('')
+class Search(Resource):
+
+    @jwt_required(optional=True)
+    @search_ns.expect(search_model)
+    def post(self):
+        destination = get_destination(query)
+
+        return destination, 200
+def get_destination(query):
+    pass
+
+
+
+
 
 
     

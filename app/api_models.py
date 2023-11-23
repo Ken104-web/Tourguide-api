@@ -17,3 +17,7 @@ profile_details_model = api.model("Profile Details", {
     "email": fields.String,
     "password": fields.String
 })
+
+search_model = api.model("Search destination", {
+    "query": fields.String
+})
