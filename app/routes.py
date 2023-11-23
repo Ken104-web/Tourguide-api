@@ -6,6 +6,8 @@ from .api_models import req_signup_model,update_profile_model, profile_details_m
 from api_keys import api_key
 sign_ns = Namespace("sign", description="handle search")
 search_ns = Namespace('search', description="search for destinations")
+import requests
+
 @sign_ns.route('')
 class SignIn(Resource):
     @sign_ns.expect(req_signup_model)
@@ -64,15 +66,34 @@ class Search(Resource):
     @jwt_required(optional=True)
     @search_ns.expect(search_model)
     def get(self):
-        destination = get_destination(query)
+        query = ['query']
+        destination = get_activity(query)
 
         return destination, 200
-def get_destination(query):
-    url = "https://travel-info-api.p.rapidapi.com/country-activities?country={query}"
+def get_activity(query):
+    url = f"https://travel-info-api.p.rapidapi.com/country-activities?country={query}"
 
     headers = {
         "X-RapidAPI-Key": api_key,
     }
+    r = requests.get(url, headers=headers)
+    data = r.json()
+    results = []
+    try:
+        for i in data:
+            title = i['title']
+            activity = i['activity']
+            results.append({"destination": title, "activity":activity})
+    except KeyError:
+        if r.status_code == 429 or int(r.status_code) == 429:
+            print (data)
+            print('(tour_api) - Rate limit exceeded')
+        else:
+                print("(tour_api) -  Error while processing your query")
+    return results
+
+
+
 
 
 
