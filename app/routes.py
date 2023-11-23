@@ -3,7 +3,7 @@ from .models import User
 from .extensions import db, api
 from flask_jwt_extended import create_access_token, get_jwt_identity, jwt_required 
 from .api_models import req_signup_model,update_profile_model, profile_details_model,search_model
-
+from api_keys import api_key
 sign_ns = Namespace("sign", description="handle search")
 search_ns = Namespace('search', description="search for destinations")
 @sign_ns.route('')
@@ -68,8 +68,11 @@ class Search(Resource):
 
         return destination, 200
 def get_destination(query):
-    pass
+    url = "https://travel-info-api.p.rapidapi.com/country-activities?country={query}"
 
+    headers = {
+        "X-RapidAPI-Key": api_key,
+    }
 
 
 
