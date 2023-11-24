@@ -96,8 +96,6 @@ def get_activities(query):
         print("(tour_api) -  Error while processing your query")
     return results
 
-
-
 def get_images(query):
     url = f"https://travel-info-api.p.rapidapi.com/country?country=kenya"
     
@@ -110,22 +108,26 @@ def get_images(query):
     results = []
     for i in data['data']['country_images']:
         images = i['imageUrl']
-        results.append({'images': images})
+        results.append({'images':images})
     if r.status_code == 429:
-            print('(tour_api) - Rate limit exceeded')
-    else:
+                
+                print('(tour_api) - Rate limit exceeded')
+    else:  
         print("(tour_api) -  Error while processing your query")
     return results
+
 
 def get_all_activities(query):
     activities = get_activities(query=query)
     images = get_images(query=query)
     results = activities + images
-    id = 1
-    for i in results:
-        i.update({'id': id})
+    id = 1 
+    for result in results:
+        result.update({"id": id})
         id += 1
     return results
+
+
 
     
 
