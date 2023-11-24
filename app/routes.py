@@ -71,7 +71,7 @@ class Search(Resource):
     @search_ns.expect(req_search_model)
     def post(self):
         query = ['query']
-        destination = get_activities(query)
+        destination = get_all_activities(query)
         return destination, 200
 
     
@@ -96,7 +96,41 @@ def get_activities(query):
         print("(tour_api) -  Error while processing your query")
     return results
 
+
+
+def get_images(query):
+    url = f"https://travel-info-api.p.rapidapi.com/country?country=kenya"
     
+    headers = {
+            "X-RapidAPI-Key": api_key,
+        }
+    r =requests.get(url, headers=headers)
+    data = r.json()
+
+    results = []
+    for i in data['data']['country_images']:
+        images = i['imageUrl']
+        results.append({'images': images})
+    if r.status_code == 429:
+            print('(tour_api) - Rate limit exceeded')
+    else:
+        print("(tour_api) -  Error while processing your query")
+    return results
+
+def get_all_activities(query):
+    activities = get_activities(query=query)
+    images = get_images(query=query)
+    results = activities + images
+    id = 1
+    for i in results:
+        i.uupdate({'id': id})
+        id += 1
+    return results
+
+    
+
+
+
 
 
 
