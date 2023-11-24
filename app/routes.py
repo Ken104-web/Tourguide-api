@@ -123,7 +123,7 @@ def get_all_activities(query):
     results = activities + images
     id = 1
     for i in results:
-        i.uupdate({'id': id})
+        i.update({'id': id})
         id += 1
     return results
 
