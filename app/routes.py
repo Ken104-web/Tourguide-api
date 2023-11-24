@@ -1,12 +1,15 @@
 from flask_restx import Resource, Namespace
 from .models import User
-from .extensions import db, api
+from .extensions import db
 from flask_jwt_extended import create_access_token, get_jwt_identity, jwt_required 
-from .api_models import req_signup_model,update_profile_model, profile_details_model,search_model
-from api_keys import api_key
-sign_ns = Namespace("sign", description="handle search")
-search_ns = Namespace('search', description="search for destinations")
+from .api_models import req_signup_model,update_profile_model,req_search_model
+from .api_keys import api_key
 import requests
+
+
+sign_ns = Namespace("sign", description="handle search")
+search_ns = Namespace("search", description="search for destinations")
+
 
 @sign_ns.route('')
 class SignIn(Resource):
@@ -60,37 +63,48 @@ class SignIn(Resource):
         db.session.delete(user)
         db.session.commit()
         return {}, 204
-search_ns.route('')
+ns = Namespace("home")
+
+@search_ns.route("")
 class Search(Resource):
-
     @jwt_required(optional=True)
-    @search_ns.expect(search_model)
-    def get(self):
+    @search_ns.expect(req_search_model)
+    def post(self):
         query = ['query']
-        destination = get_activity(query)
-
+        destination = get_activities(query)
         return destination, 200
-def get_activity(query):
-    url = f"https://travel-info-api.p.rapidapi.com/country-activities?country={query}"
+
+    
+def get_activities(query):
+    url = f"https://travel-info-api.p.rapidapi.com/country-activities?country=kenya"
 
     headers = {
         "X-RapidAPI-Key": api_key,
     }
     r = requests.get(url, headers=headers)
+
     data = r.json()
+    # print (data)
     results = []
-    try:
-        for i in data:
-            title = i['title']
-            activity = i['activity']
-            results.append({"destination": title, "activity":activity})
-    except KeyError:
-        if r.status_code == 429 or int(r.status_code) == 429:
-            print (data)
+    for i in data['data']['activities']:
+        title = i['title']
+        activity = i['activity']
+        results.append({"destination": title, "activity": activity})
+    if r.status_code == 429:
             print('(tour_api) - Rate limit exceeded')
-        else:
-                print("(tour_api) -  Error while processing your query")
+    else:
+        print("(tour_api) -  Error while processing your query")
     return results
+
+    
+
+
+
+
+   
+
+
+
 
 
 
