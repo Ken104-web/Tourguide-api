@@ -1,6 +1,7 @@
 from flask_restx import Resource, Namespace
 from .models import User
 from .extensions import db
+from flask import request
 from flask_jwt_extended import create_access_token, get_jwt_identity, jwt_required 
 from .api_models import req_signup_model,update_profile_model,req_search_model
 from .api_keys import api_key
@@ -70,13 +71,13 @@ class Search(Resource):
     @jwt_required(optional=True)
     @search_ns.expect(req_search_model)
     def post(self):
-        query = ['query']
+        query = request.json.get('query')
         destination = get_all_activities(query)
         return destination, 200
 
-    
 def get_activities(query):
-    url = f"https://travel-info-api.p.rapidapi.com/country-activities?country=kenya"
+ 
+    url = f"https://travel-info-api.p.rapidapi.com/country-activities?country={query}"
 
     headers = {
         "X-RapidAPI-Key": api_key,
@@ -87,17 +88,19 @@ def get_activities(query):
     # print (data)
     results = []
     for i in data['data']['activities']:
+        # print (i)
         title = i['title']
         activity = i['activity']
         results.append({"destination": title, "activity": activity})
+
     if r.status_code == 429:
-            print('(tour_api) - Rate limit exceeded')
+            print('(tour_api) - Rate limit reached')
     else:
         print("(tour_api) -  Error while processing your query")
     return results
 
 def get_images(query):
-    url = f"https://travel-info-api.p.rapidapi.com/country?country=kenya"
+    url = f"https://travel-info-api.p.rapidapi.com/country?country={query}"
     
     headers = {
             "X-RapidAPI-Key": api_key,
@@ -109,9 +112,8 @@ def get_images(query):
     for i in data['data']['country_images']:
         images = i['imageUrl']
         results.append({'images':images})
-    if r.status_code == 429:
-                
-                print('(tour_api) - Rate limit exceeded')
+    if r.status_code == 429:        
+        print('(tour_api) - Rate limit exceeded')
     else:  
         print("(tour_api) -  Error while processing your query")
     return results
@@ -126,7 +128,6 @@ def get_all_activities(query):
         result.update({"id": id})
         id += 1
     return results
-
 
 
     
